@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Generates a complete brand guidelines HTML document.
@@ -17,7 +18,7 @@ const BrandInfoSchema = z.object({
 });
 
 
-export const GenerateBrandGuidelinesInputSchema = z.object({
+const GenerateBrandGuidelinesInputSchema = z.object({
   brandInfo: BrandInfoSchema,
   logoDataUri: z
     .string()
@@ -28,7 +29,7 @@ export const GenerateBrandGuidelinesInputSchema = z.object({
 });
 export type GenerateBrandGuidelinesInput = z.infer<typeof GenerateBrandGuidelinesInputSchema>;
 
-export const GenerateBrandGuidelinesOutputSchema = z.object({
+const GenerateBrandGuidelinesOutputSchema = z.object({
   guidelinesHtml: z.string().describe('The generated brand guidelines as an HTML string.'),
 });
 export type GenerateBrandGuidelinesOutput = z.infer<typeof GenerateBrandGuidelinesOutputSchema>;
