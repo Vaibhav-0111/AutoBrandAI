@@ -25,6 +25,7 @@ import { hexToHsl } from "@/lib/utils";
 import { generateBrandGuidelines } from "@/ai/flows/generate-brand-guidelines";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { BrandGuidelinesDisplay } from "./brand-guidelines-display";
+import { AudioJinglePlayer, AudioJinglePlayerSkeleton } from "./audio-jingle-player";
 
 const formSchema = z.object({
   logo: z.string().optional(),
@@ -74,6 +75,11 @@ export default function AutoBrandPage() {
           --accent: ${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%;
         }
       `;
+      // Clean up previous style tag
+      const existingStyle = document.getElementById('dynamic-brand-styles');
+      if (existingStyle) {
+        document.head.removeChild(existingStyle);
+      }
       document.head.appendChild(style);
 
       return () => {
@@ -195,6 +201,7 @@ export default function AutoBrandPage() {
         <>
           <BrandKitDisplaySkeleton />
           <SocialMediaKitSkeleton />
+          <AudioJinglePlayerSkeleton />
           <TemplateGallerySkeleton />
         </>
       );
@@ -242,6 +249,7 @@ export default function AutoBrandPage() {
             onBrandToneChange={handleBrandToneChange}
           />
           {socialPosts ? <SocialMediaKit posts={socialPosts} /> : <SocialMediaKitSkeleton />}
+          <AudioJinglePlayer brandName="My Brand" businessType={brandData.businessType} />
           <TemplateGallery 
             brandInfo={brandData.brandInfo} 
             onTemplateSelect={setSelectedTemplate}

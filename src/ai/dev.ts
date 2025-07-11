@@ -9,3 +9,4 @@ import '@/ai/flows/brand-expert-chat.ts';
 import '@/ai/flows/generate-logo.ts';
 import '@/ai/flows/generate-mockup.ts';
 import '@/ai/flows/generate-brand-guidelines.ts';
+import '@/ai/flows/generate-jingle.ts';
