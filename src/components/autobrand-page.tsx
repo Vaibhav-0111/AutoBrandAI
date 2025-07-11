@@ -241,7 +241,7 @@ export default function AutoBrandPage() {
             onFontStyleChange={handleFontStyleChange}
             onBrandToneChange={handleBrandToneChange}
           />
-          {socialPosts && <SocialMediaKit posts={socialPosts} />}
+          {socialPosts ? <SocialMediaKit posts={socialPosts} /> : <SocialMediaKitSkeleton />}
           <TemplateGallery 
             brandInfo={brandData.brandInfo} 
             onTemplateSelect={setSelectedTemplate}
