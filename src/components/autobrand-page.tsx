@@ -85,6 +85,21 @@ export default function AutoBrandPage() {
   const handleBackToGallery = () => {
     setSelectedTemplate(null);
   };
+  
+  const handleColorChange = (colorIndex: number, newColor: string) => {
+    if (!brandData) return;
+
+    const updatedPalette = [...brandData.brandInfo.colorPalette];
+    updatedPalette[colorIndex] = newColor;
+
+    setBrandData({
+      ...brandData,
+      brandInfo: {
+        ...brandData.brandInfo,
+        colorPalette: updatedPalette,
+      }
+    });
+  }
 
   const renderContent = () => {
     if (isGenerating) {
@@ -115,7 +130,10 @@ export default function AutoBrandPage() {
       }
       return (
         <>
-          <BrandKitDisplay brandInfo={brandData.brandInfo} />
+          <BrandKitDisplay 
+            brandInfo={brandData.brandInfo} 
+            onColorChange={handleColorChange}
+          />
           {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
           <TemplateGallery 
             brandInfo={brandData.brandInfo} 

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ExtractBrandFromLogoOutput } from "@/ai/flows/extract-brand-from-logo";
+import * as React from 'react';
 import {
   Card,
   CardContent,
@@ -9,16 +10,26 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Palette, Type, Sparkles } from "lucide-react";
+import { Palette, Type, Sparkles, Edit } from "lucide-react";
 
 type BrandKitDisplayProps = {
   brandInfo: ExtractBrandFromLogoOutput;
+  onColorChange: (index: number, newColor: string) => void;
 };
 
-export function BrandKitDisplay({ brandInfo }: BrandKitDisplayProps) {
+export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayProps) {
+  const colorInputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleColorBoxClick = (index: number) => {
+    colorInputRefs.current[index]?.click();
+  }
+
   return (
     <div>
-      <h2 className="text-3xl font-headline font-bold tracking-tight mb-4">Your Brand Kit</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-3xl font-headline font-bold tracking-tight">Your Brand Kit</h2>
+        <p className="text-sm text-muted-foreground hidden md:block">Click a color to customize it.</p>
+      </div>
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
@@ -32,12 +43,23 @@ export function BrandKitDisplay({ brandInfo }: BrandKitDisplayProps) {
               {brandInfo.colorPalette.map((color, index) => (
                 <div
                   key={index}
-                  className="w-full h-16 rounded-md flex items-end justify-end p-2 border"
+                  className="relative w-full h-16 rounded-md flex items-end justify-end p-2 border cursor-pointer group"
                   style={{ backgroundColor: color }}
+                  onClick={() => handleColorBoxClick(index)}
                 >
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Edit className="w-5 h-5 text-white"/>
+                  </div>
                   <span className="text-xs font-mono mix-blend-difference text-white">
                     {color}
                   </span>
+                  <input 
+                    type="color"
+                    ref={(el) => colorInputRefs.current[index] = el}
+                    value={color}
+                    onChange={(e) => onColorChange(index, e.target.value)}
+                    className="absolute w-0 h-0 opacity-0"
+                  />
                 </div>
               ))}
             </div>
