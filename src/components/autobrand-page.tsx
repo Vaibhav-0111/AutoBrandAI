@@ -192,7 +192,7 @@ export default function AutoBrandPage() {
         </SidebarHeader>
         <SidebarContent className="p-4">
           <AutoBrandForm onSubmit={onSubmit} isGenerating={isGenerating} />
-        </Sidebar-content>
+        </SidebarContent>
       </Sidebar>
       <SidebarInset>
         <div className="p-4 md:p-8 space-y-8">
