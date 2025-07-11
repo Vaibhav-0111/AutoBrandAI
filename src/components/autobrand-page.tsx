@@ -20,8 +20,11 @@ import { TemplateGallery, TemplateGallerySkeleton } from "./template-gallery";
 import { Logo } from "./icons";
 import { TemplatePreview } from "./template-preview";
 import { Button } from "./ui/button";
-import { ArrowLeft } from "lucide-react";
-import { hexToHsl, hslToHex } from "@/lib/utils";
+import { ArrowLeft, BookMarked, Loader2 } from "lucide-react";
+import { hexToHsl } from "@/lib/utils";
+import { generateBrandGuidelines } from "@/ai/flows/generate-brand-guidelines";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { BrandGuidelinesDisplay } from "./brand-guidelines-display";
 
 const formSchema = z.object({
   logo: z.string().optional(),
@@ -32,6 +35,7 @@ const formSchema = z.object({
 type BrandData = {
   brandInfo: ExtractBrandFromLogoOutput;
   businessType: string;
+  logoDataUri: string;
 }
 
 export type Template = {
@@ -46,10 +50,13 @@ export type Template = {
 export default function AutoBrandPage() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isGeneratingGuidelines, setIsGeneratingGuidelines] = React.useState(false);
   const [brandData, setBrandData] = React.useState<BrandData | null>(null);
   const [socialPosts, setSocialPosts] = React.useState<string[] | null>(null);
   const [selectedTemplate, setSelectedTemplate] = React.useState<Template | null>(null);
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
+  const [guidelinesHtml, setGuidelinesHtml] = React.useState<string | null>(null);
+  const [isGuidelinesDialogOpen, setIsGuidelinesDialogOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (brandData?.brandInfo.colorPalette) {
@@ -61,8 +68,6 @@ export default function AutoBrandPage() {
 
       const style = document.createElement('style');
       style.id = 'dynamic-brand-styles';
-      // We will only theme the primary and accent colors to avoid overwhelming the UI.
-      // The background will remain neutral.
       style.innerHTML = `
         :root {
           --primary: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%;
@@ -80,7 +85,6 @@ export default function AutoBrandPage() {
     }
   }, [brandData]);
 
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!values.logo) {
       toast({
@@ -95,6 +99,7 @@ export default function AutoBrandPage() {
     setBrandData(null);
     setSocialPosts(null);
     setSelectedTemplate(null);
+    setGuidelinesHtml(null);
 
     try {
       const brandResult = await extractBrandFromLogo({
@@ -108,7 +113,11 @@ export default function AutoBrandPage() {
         brandTone: brandResult.brandTone,
       });
 
-      setBrandData({ brandInfo: brandResult, businessType: values.businessType });
+      setBrandData({ 
+        brandInfo: brandResult, 
+        businessType: values.businessType, 
+        logoDataUri: values.logo 
+      });
       
       const postsResult = await postsPromise;
       setSocialPosts(postsResult.postSuggestions);
@@ -131,39 +140,53 @@ export default function AutoBrandPage() {
   
   const handleColorChange = (colorIndex: number, newColor: string) => {
     if (!brandData) return;
-
-    const updatedPalette = [...brandData.brandInfo.colorPalette];
-    updatedPalette[colorIndex] = newColor;
-
-    setBrandData({
-      ...brandData,
+    setBrandData(prev => prev && {
+      ...prev,
       brandInfo: {
-        ...brandData.brandInfo,
-        colorPalette: updatedPalette,
+        ...prev.brandInfo,
+        colorPalette: prev.brandInfo.colorPalette.map((c, i) => i === colorIndex ? newColor : c),
       }
     });
   };
 
   const handleFontStyleChange = (newFontStyle: string) => {
     if (!brandData) return;
-    setBrandData({
-      ...brandData,
-      brandInfo: {
-        ...brandData.brandInfo,
-        fontStyle: newFontStyle,
-      }
+    setBrandData(prev => prev && {
+      ...prev,
+      brandInfo: { ...prev.brandInfo, fontStyle: newFontStyle }
     });
   };
 
   const handleBrandToneChange = (newBrandTone: string) => {
     if (!brandData) return;
-    setBrandData({
-      ...brandData,
-      brandInfo: {
-        ...brandData.brandInfo,
-        brandTone: newBrandTone,
-      }
+    setBrandData(prev => prev && {
+      ...prev,
+      brandInfo: { ...prev.brandInfo, brandTone: newBrandTone }
     });
+  };
+
+  const handleGenerateGuidelines = async () => {
+    if (!brandData) return;
+    setIsGeneratingGuidelines(true);
+    setGuidelinesHtml(null);
+    try {
+      const result = await generateBrandGuidelines({
+        brandInfo: brandData.brandInfo,
+        businessType: brandData.businessType,
+        logoDataUri: brandData.logoDataUri,
+      });
+      setGuidelinesHtml(result.guidelinesHtml);
+      setIsGuidelinesDialogOpen(true);
+    } catch (error) {
+       console.error("Error generating brand guidelines:", error);
+       toast({
+        variant: "destructive",
+        title: "Guidelines Generation Failed",
+        description: "Could not generate brand guidelines. Please try again.",
+      });
+    } finally {
+      setIsGeneratingGuidelines(false);
+    }
   };
 
   const renderContent = () => {
@@ -195,6 +218,23 @@ export default function AutoBrandPage() {
       }
       return (
         <>
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl font-headline font-bold tracking-tight">Your Brand Kit</h2>
+            <Dialog open={isGuidelinesDialogOpen} onOpenChange={setIsGuidelinesDialogOpen}>
+              <DialogTrigger asChild>
+                  <Button onClick={handleGenerateGuidelines} disabled={isGeneratingGuidelines}>
+                    {isGeneratingGuidelines ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <BookMarked className="mr-2 h-4 w-4" />}
+                    Brand Guidelines
+                  </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl h-[90vh]">
+                <DialogHeader>
+                  <DialogTitle>Brand Guidelines</DialogTitle>
+                </DialogHeader>
+                <BrandGuidelinesDisplay htmlContent={guidelinesHtml} isLoading={isGeneratingGuidelines}/>
+              </DialogContent>
+            </Dialog>
+          </div>
           <BrandKitDisplay 
             brandInfo={brandData.brandInfo} 
             onColorChange={handleColorChange}

@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Type, Sparkles, Edit } from "lucide-react";
-import { Popover, PopoverTrigger } from "./ui/popover";
 
 type BrandKitDisplayProps = {
   brandInfo: ExtractBrandFromLogoOutput;
@@ -38,98 +37,91 @@ export function BrandKitDisplay({
 }: BrandKitDisplayProps) {
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-3xl font-headline font-bold tracking-tight">Your Brand Kit</h2>
-        <p className="text-sm text-muted-foreground hidden md:block">Click an element to customize it.</p>
-      </div>
-      <div className="flex flex-col gap-6">
-        <Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-headline">
+            <Palette className="w-5 h-5 text-primary" />
+            Color Palette
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4 justify-start">
+            {brandInfo.colorPalette.map((color, index) => (
+              <div key={index} className="relative group">
+                <label
+                  aria-label={`Change color ${color}`}
+                  className="block w-20 h-20 rounded-lg border cursor-pointer transition-transform hover:scale-105"
+                  style={{ backgroundColor: color }}
+                >
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                    <Edit className="w-6 h-6 text-white"/>
+                  </div>
+                  <input 
+                    type="color"
+                    value={color}
+                    onChange={(e) => onColorChange(index, e.target.value)}
+                    className="absolute w-full h-full opacity-0 cursor-pointer"
+                    aria-label={`Change color for ${color}`}
+                  />
+                </label>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+          <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline">
-              <Palette className="w-5 h-5 text-primary" />
-              Color Palette
-            </CardTitle>
+              <CardTitle className="flex items-center gap-2 font-headline">
+              <Type className="w-5 h-5 text-primary" />
+              Typography
+              </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-4 justify-start">
-              {brandInfo.colorPalette.map((color, index) => (
-                <Popover key={index}>
-                  <PopoverTrigger asChild>
-                    <button
-                      aria-label={`Change color ${color}`}
-                      className="relative w-20 h-20 rounded-lg flex items-end justify-end p-2 border cursor-pointer group transition-transform hover:scale-105"
-                      style={{ backgroundColor: color }}
-                    >
-                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                        <Edit className="w-6 h-6 text-white"/>
-                      </div>
-                      <input 
-                        type="color"
-                        value={color}
-                        onChange={(e) => onColorChange(index, e.target.value)}
-                        className="absolute w-full h-full opacity-0 cursor-pointer"
-                        aria-label={`Change color for ${color}`}
-                      />
-                    </button>
-                  </PopoverTrigger>
-                </Popover>
-              ))}
-            </div>
+              <Select onValueChange={onFontStyleChange} defaultValue={brandInfo.fontStyle}>
+                  <SelectTrigger className="capitalize">
+                  <SelectValue placeholder="Select a font style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {fontStyles.map((style) => (
+                      <SelectItem key={style} value={style} className="capitalize">
+                      {style}
+                      </SelectItem>
+                  ))}
+                  </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground mt-2">
+              Recommended font style
+              </p>
           </CardContent>
-        </Card>
-        <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                <Type className="w-5 h-5 text-primary" />
-                Typography
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Select onValueChange={onFontStyleChange} defaultValue={brandInfo.fontStyle}>
-                    <SelectTrigger className="capitalize">
-                    <SelectValue placeholder="Select a font style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {fontStyles.map((style) => (
-                        <SelectItem key={style} value={style} className="capitalize">
-                        {style}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground mt-2">
-                Recommended font style
-                </p>
-            </CardContent>
-            </Card>
-            <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                <Sparkles className="w-5 h-5 text-primary" />
-                Brand Tone
-                </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Select onValueChange={onBrandToneChange} defaultValue={brandInfo.brandTone}>
-                    <SelectTrigger className="capitalize">
-                    <SelectValue placeholder="Select a brand tone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                    {brandTones.map((tone) => (
-                        <SelectItem key={tone} value={tone} className="capitalize">
-                        {tone}
-                        </SelectItem>
-                    ))}
-                    </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground mt-2">
-                Overall brand personality
-                </p>
-            </CardContent>
-            </Card>
-        </div>
+          </Card>
+          <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2 font-headline">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Brand Tone
+              </CardTitle>
+          </CardHeader>
+          <CardContent>
+              <Select onValueChange={onBrandToneChange} defaultValue={brandInfo.brandTone}>
+                  <SelectTrigger className="capitalize">
+                  <SelectValue placeholder="Select a brand tone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                  {brandTones.map((tone) => (
+                      <SelectItem key={tone} value={tone} className="capitalize">
+                      {tone}
+                      </SelectItem>
+                  ))}
+                  </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground mt-2">
+              Overall brand personality
+              </p>
+          </CardContent>
+          </Card>
       </div>
     </div>
   );
