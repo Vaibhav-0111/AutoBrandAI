@@ -5,28 +5,42 @@ import * as React from 'react';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Type, Sparkles, Edit } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Popover, PopoverTrigger } from "./ui/popover";
 
 type BrandKitDisplayProps = {
   brandInfo: ExtractBrandFromLogoOutput;
   onColorChange: (index: number, newColor: string) => void;
+  onFontStyleChange: (newStyle: string) => void;
+  onBrandToneChange: (newTone: string) => void;
 };
 
-export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayProps) {
+const fontStyles = ["sans-serif", "serif", "display", "handwriting", "monospace"];
+const brandTones = ["modern", "playful", "minimal", "elegant", "corporate"];
+
+export function BrandKitDisplay({ 
+  brandInfo, 
+  onColorChange, 
+  onFontStyleChange, 
+  onBrandToneChange 
+}: BrandKitDisplayProps) {
 
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-headline font-bold tracking-tight">Your Brand Kit</h2>
-        <p className="text-sm text-muted-foreground hidden md:block">Click a color to customize it.</p>
+        <p className="text-sm text-muted-foreground hidden md:block">Click an element to customize it.</p>
       </div>
       <div className="grid gap-6 md:grid-cols-3">
         <Card>
@@ -71,8 +85,19 @@ export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg capitalize">{brandInfo.fontStyle}</p>
-            <p className="text-sm text-muted-foreground">
+             <Select onValueChange={onFontStyleChange} defaultValue={brandInfo.fontStyle}>
+                <SelectTrigger className="capitalize">
+                  <SelectValue placeholder="Select a font style" />
+                </SelectTrigger>
+                <SelectContent>
+                  {fontStyles.map((style) => (
+                    <SelectItem key={style} value={style} className="capitalize">
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            <p className="text-sm text-muted-foreground mt-2">
               Recommended font style
             </p>
           </CardContent>
@@ -85,8 +110,19 @@ export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-lg capitalize">{brandInfo.brandTone}</p>
-            <p className="text-sm text-muted-foreground">
+             <Select onValueChange={onBrandToneChange} defaultValue={brandInfo.brandTone}>
+                <SelectTrigger className="capitalize">
+                  <SelectValue placeholder="Select a brand tone" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brandTones.map((tone) => (
+                    <SelectItem key={tone} value={tone} className="capitalize">
+                      {tone}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            <p className="text-sm text-muted-foreground mt-2">
               Overall brand personality
             </p>
           </CardContent>
@@ -119,7 +155,7 @@ export function BrandKitDisplaySkeleton() {
             <Skeleton className="h-6 w-3/4" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-7 w-1/2 mb-2" />
+            <Skeleton className="h-10 w-full mb-2" />
             <Skeleton className="h-4 w-3/4" />
           </CardContent>
         </Card>
@@ -128,7 +164,7 @@ export function BrandKitDisplaySkeleton() {
             <Skeleton className="h-6 w-3/4" />
           </CardHeader>
           <CardContent>
-            <Skeleton className="h-7 w-1/2 mb-2" />
+            <Skeleton className="h-10 w-full mb-2" />
             <Skeleton className="h-4 w-3/4" />
           </CardContent>
         </Card>

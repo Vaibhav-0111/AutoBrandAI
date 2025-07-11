@@ -99,7 +99,29 @@ export default function AutoBrandPage() {
         colorPalette: updatedPalette,
       }
     });
-  }
+  };
+
+  const handleFontStyleChange = (newFontStyle: string) => {
+    if (!brandData) return;
+    setBrandData({
+      ...brandData,
+      brandInfo: {
+        ...brandData.brandInfo,
+        fontStyle: newFontStyle,
+      }
+    });
+  };
+
+  const handleBrandToneChange = (newBrandTone: string) => {
+    if (!brandData) return;
+    setBrandData({
+      ...brandData,
+      brandInfo: {
+        ...brandData.brandInfo,
+        brandTone: newBrandTone,
+      }
+    });
+  };
 
   const renderContent = () => {
     if (isGenerating) {
@@ -133,6 +155,8 @@ export default function AutoBrandPage() {
           <BrandKitDisplay 
             brandInfo={brandData.brandInfo} 
             onColorChange={handleColorChange}
+            onFontStyleChange={handleFontStyleChange}
+            onBrandToneChange={handleBrandToneChange}
           />
           {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
           <TemplateGallery 
@@ -152,7 +176,7 @@ export default function AutoBrandPage() {
           </p>
       </div>
     );
-  }
+  };
 
   return (
     <SidebarProvider>
@@ -168,7 +192,7 @@ export default function AutoBrandPage() {
         </SidebarHeader>
         <SidebarContent className="p-4">
           <AutoBrandForm onSubmit={onSubmit} isGenerating={isGenerating} />
-        </SidebarContent>
+        </Sidebar-content>
       </Sidebar>
       <SidebarInset>
         <div className="p-4 md:p-8 space-y-8">
