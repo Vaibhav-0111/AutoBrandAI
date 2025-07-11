@@ -17,6 +17,9 @@ import { BrandKitDisplay, BrandKitDisplaySkeleton } from "./brand-kit-display";
 import { SocialMediaKit, SocialMediaKitSkeleton } from "./social-media-kit";
 import { TemplateGallery, TemplateGallerySkeleton } from "./template-gallery";
 import { Logo } from "./icons";
+import { TemplatePreview } from "./template-preview";
+import { Button } from "./ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
   logo: z.string(),
@@ -28,16 +31,27 @@ type BrandData = {
   businessType: string;
 }
 
+export type Template = {
+  id: string;
+  name: string;
+  hint: string;
+  width: number;
+  height: number;
+  assetType: string;
+};
+
 export default function AutoBrandPage() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [brandData, setBrandData] = React.useState<BrandData | null>(null);
   const [socialHeaders, setSocialHeaders] = React.useState<string[] | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = React.useState<Template | null>(null);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     setBrandData(null);
     setSocialHeaders(null);
+    setSelectedTemplate(null);
     try {
       const brandPromise = extractBrandFromLogo({
         logoDataUri: values.logo,
@@ -56,10 +70,6 @@ export default function AutoBrandPage() {
       setBrandData({ brandInfo: brandResult, businessType: values.businessType });
       setSocialHeaders(headersResult.headerSuggestions);
 
-      toast({
-        title: "Success!",
-        description: "Your brand kit has been generated.",
-      });
     } catch (error) {
       console.error("Error generating brand kit:", error);
       toast({
@@ -71,6 +81,60 @@ export default function AutoBrandPage() {
       setIsGenerating(false);
     }
   };
+  
+  const handleBackToGallery = () => {
+    setSelectedTemplate(null);
+  };
+
+  const renderContent = () => {
+    if (isGenerating) {
+      return (
+        <>
+          <BrandKitDisplaySkeleton />
+          <SocialMediaKitSkeleton />
+          <TemplateGallerySkeleton />
+        </>
+      );
+    }
+    
+    if (brandData) {
+      if (selectedTemplate) {
+        return (
+          <div>
+            <Button variant="ghost" onClick={handleBackToGallery} className="mb-4">
+              <ArrowLeft className="mr-2 h-4 w-4"/>
+              Back to Templates
+            </Button>
+            <TemplatePreview 
+              template={selectedTemplate}
+              brandInfo={brandData.brandInfo}
+              businessType={brandData.businessType}
+            />
+          </div>
+        );
+      }
+      return (
+        <>
+          <BrandKitDisplay brandInfo={brandData.brandInfo} />
+          {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
+          <TemplateGallery 
+            brandInfo={brandData.brandInfo} 
+            onTemplateSelect={setSelectedTemplate}
+          />
+        </>
+      );
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center h-[calc(100vh-10rem)] text-center bg-card rounded-xl border border-dashed">
+          <Logo className="w-24 h-24 text-muted-foreground/50"/>
+          <h2 className="mt-6 text-2xl font-headline font-semibold">Welcome to AutoBrand AI</h2>
+          <p className="mt-2 max-w-md text-muted-foreground">
+              Get started by uploading your logo and selecting your business type in the sidebar. We&apos;ll instantly generate a complete brand kit for you.
+          </p>
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -90,27 +154,7 @@ export default function AutoBrandPage() {
       </Sidebar>
       <SidebarInset>
         <div className="p-4 md:p-8 space-y-8">
-          {isGenerating ? (
-            <>
-              <BrandKitDisplaySkeleton />
-              <SocialMediaKitSkeleton />
-              <TemplateGallerySkeleton />
-            </>
-          ) : brandData ? (
-            <>
-              <BrandKitDisplay brandInfo={brandData.brandInfo} />
-              {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
-              <TemplateGallery brandInfo={brandData.brandInfo} />
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-[calc(100vh-10rem)] text-center bg-card rounded-xl border border-dashed">
-                <Logo className="w-24 h-24 text-muted-foreground/50"/>
-                <h2 className="mt-6 text-2xl font-headline font-semibold">Welcome to AutoBrand AI</h2>
-                <p className="mt-2 max-w-md text-muted-foreground">
-                    Get started by uploading your logo and selecting your business type in the sidebar. We&apos;ll instantly generate a complete brand kit for you.
-                </p>
-            </div>
-          )}
+          {renderContent()}
         </div>
       </SidebarInset>
     </SidebarProvider>

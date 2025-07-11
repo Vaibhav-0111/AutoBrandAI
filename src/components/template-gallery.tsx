@@ -5,17 +5,12 @@ import Image from "next/image";
 import {
   Card,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ExtractBrandFromLogoOutput } from "@/ai/flows/extract-brand-from-logo";
-import { generateBrandedAsset } from "@/ai/flows/generate-branded-asset";
-import { useToast } from "@/hooks/use-toast";
-import { Check, Download, Loader2, Wand2 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { type Template } from "./autobrand-page";
 
-const templates = [
+const templates: Template[] = [
   { id: "flyer-01", name: "Business Flyer", hint: "business flyer", width: 400, height: 518, assetType: "Business Flyer" },
   { id: "ig-post-01", name: "Instagram Post", hint: "social media", width: 400, height: 400, assetType: "Instagram Post" },
   { id: "bizcard-01", name: "Business Card", hint: "business card", width: 400, height: 233, assetType: "Business Card" },
@@ -24,130 +19,56 @@ const templates = [
 
 type TemplateGalleryProps = {
   brandInfo: ExtractBrandFromLogoOutput;
+  onTemplateSelect: (template: Template) => void;
 };
 
 function TemplateCard({
   template,
   brandInfo,
+  onSelect,
 }: {
-  template: (typeof templates)[0];
+  template: Template;
   brandInfo: ExtractBrandFromLogoOutput;
+  onSelect: () => void;
 }) {
-  const { toast } = useToast();
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [generatedAsset, setGeneratedAsset] = React.useState<string | null>(null);
-
-  const handleGenerateAsset = async () => {
-    setIsGenerating(true);
-    setGeneratedAsset(null);
-    try {
-      const result = await generateBrandedAsset({
-        assetType: template.assetType,
-        colorPalette: brandInfo.colorPalette,
-        fontStyle: brandInfo.fontStyle,
-        brandTone: brandInfo.brandTone,
-        businessType: "Unknown", // Assuming businessType is not available here, might need to pass it down.
-      });
-      setGeneratedAsset(result.assetDataUri);
-      toast({
-        title: "Asset Generated!",
-        description: `Your ${template.name} has been created.`,
-      });
-    } catch (error) {
-      console.error("Error generating asset:", error);
-      toast({
-        variant: "destructive",
-        title: "Generation Failed",
-        description: "Could not generate the asset.",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const handleDownload = () => {
-    if (!generatedAsset) return;
-    const link = document.createElement("a");
-    link.href = generatedAsset;
-    link.download = `${template.name.replace(/\s+/g, '-')}-branded.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden cursor-pointer group" onClick={onSelect}>
       <CardContent className="p-0">
-        <Dialog>
-          <DialogTrigger asChild>
-            <div className="aspect-w-1 aspect-h-1 bg-muted cursor-pointer">
-              <Image
-                src={generatedAsset || `https://placehold.co/${template.width}x${template.height}.png`}
-                alt={template.name}
-                width={template.width}
-                height={template.height}
-                data-ai-hint={template.hint}
-                className="w-full h-auto object-cover transition-transform hover:scale-105"
-                style={{
-                    borderBottom: `8px solid ${brandInfo.colorPalette[0] || 'hsl(var(--primary))'}`
-                }}
-              />
-            </div>
-          </DialogTrigger>
-          {generatedAsset && (
-             <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                    <DialogTitle>{template.name}</DialogTitle>
-                </DialogHeader>
-                <div className="flex justify-center items-center p-4">
-                    <Image
-                        src={generatedAsset}
-                        alt={`Generated ${template.name}`}
-                        width={800}
-                        height={800}
-                        className="max-w-full h-auto rounded-md"
-                    />
-                </div>
-                 <Button onClick={handleDownload}>
-                    <Download className="mr-2" />
-                    Download
-                </Button>
-            </DialogContent>
-          )}
-        </Dialog>
+        <div className="aspect-w-1 aspect-h-1 bg-muted">
+            <Image
+            src={`https://placehold.co/${template.width}x${template.height}.png`}
+            alt={template.name}
+            width={template.width}
+            height={template.height}
+            data-ai-hint={template.hint}
+            className="w-full h-auto object-cover transition-transform group-hover:scale-105"
+            style={{
+                borderBottom: `8px solid ${brandInfo.colorPalette[0] || 'hsl(var(--primary))'}`
+            }}
+            />
+        </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center pt-4">
-        <p className="font-semibold">{template.name}</p>
-        <Button
-          onClick={handleGenerateAsset}
-          disabled={isGenerating}
-          size="sm"
-        >
-          {isGenerating ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Wand2 className="mr-2 h-4 w-4" />
-          )}
-          {generatedAsset ? "Regenerate" : "Generate"}
-        </Button>
-      </CardFooter>
+       <div className="p-4">
+        <p className="font-semibold text-sm">{template.name}</p>
+      </div>
     </Card>
   );
 }
 
-export function TemplateGallery({ brandInfo }: TemplateGalleryProps) {
+export function TemplateGallery({ brandInfo, onTemplateSelect }: TemplateGalleryProps) {
   return (
     <div>
-      <h2 className="text-3xl font-headline font-bold tracking-tight mb-4">
+      <h2 className="text-3xl font-headline font-bold tracking-tight mb-1">
         Branded Templates
       </h2>
+      <p className="text-muted-foreground mb-4">Select a template to preview and generate your asset.</p>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {templates.map((template) => (
           <TemplateCard
             key={template.id}
             template={template}
             brandInfo={brandInfo}
+            onSelect={() => onTemplateSelect(template)}
           />
         ))}
       </div>
@@ -165,10 +86,9 @@ export function TemplateGallerySkeleton() {
             <CardContent className="p-0">
               <Skeleton className="w-full h-48" />
             </CardContent>
-            <CardFooter className="pt-4 flex justify-between items-center">
+            <div className="p-4">
               <Skeleton className="h-5 w-24" />
-              <Skeleton className="h-9 w-28" />
-            </CardFooter>
+            </div>
           </Card>
         ))}
       </div>
