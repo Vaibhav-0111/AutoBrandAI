@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { ExtractBrandFromLogoOutput } from "@/ai/flows/extract-brand-from-logo";
@@ -42,7 +43,7 @@ export function BrandKitDisplay({
         <h2 className="text-3xl font-headline font-bold tracking-tight">Your Brand Kit</h2>
         <p className="text-sm text-muted-foreground hidden md:block">Click an element to customize it.</p>
       </div>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="flex flex-col gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-headline">
@@ -51,7 +52,7 @@ export function BrandKitDisplay({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2 justify-around">
+            <div className="flex flex-wrap gap-4 justify-start">
               {brandInfo.colorPalette.map((color, index) => (
                 <Popover key={index}>
                   <PopoverTrigger asChild>
@@ -77,56 +78,58 @@ export function BrandKitDisplay({
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline">
-              <Type className="w-5 h-5 text-primary" />
-              Typography
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-             <Select onValueChange={onFontStyleChange} defaultValue={brandInfo.fontStyle}>
-                <SelectTrigger className="capitalize">
-                  <SelectValue placeholder="Select a font style" />
-                </SelectTrigger>
-                <SelectContent>
-                  {fontStyles.map((style) => (
-                    <SelectItem key={style} value={style} className="capitalize">
-                      {style}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            <p className="text-sm text-muted-foreground mt-2">
-              Recommended font style
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Brand Tone
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-             <Select onValueChange={onBrandToneChange} defaultValue={brandInfo.brandTone}>
-                <SelectTrigger className="capitalize">
-                  <SelectValue placeholder="Select a brand tone" />
-                </SelectTrigger>
-                <SelectContent>
-                  {brandTones.map((tone) => (
-                    <SelectItem key={tone} value={tone} className="capitalize">
-                      {tone}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            <p className="text-sm text-muted-foreground mt-2">
-              Overall brand personality
-            </p>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                <Type className="w-5 h-5 text-primary" />
+                Typography
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Select onValueChange={onFontStyleChange} defaultValue={brandInfo.fontStyle}>
+                    <SelectTrigger className="capitalize">
+                    <SelectValue placeholder="Select a font style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {fontStyles.map((style) => (
+                        <SelectItem key={style} value={style} className="capitalize">
+                        {style}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground mt-2">
+                Recommended font style
+                </p>
+            </CardContent>
+            </Card>
+            <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                <Sparkles className="w-5 h-5 text-primary" />
+                Brand Tone
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Select onValueChange={onBrandToneChange} defaultValue={brandInfo.brandTone}>
+                    <SelectTrigger className="capitalize">
+                    <SelectValue placeholder="Select a brand tone" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    {brandTones.map((tone) => (
+                        <SelectItem key={tone} value={tone} className="capitalize">
+                        {tone}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+                <p className="text-sm text-muted-foreground mt-2">
+                Overall brand personality
+                </p>
+            </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
@@ -136,13 +139,13 @@ export function BrandKitDisplaySkeleton() {
   return (
     <div>
       <Skeleton className="h-9 w-64 mb-4" />
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="flex flex-col gap-6">
         <Card>
           <CardHeader>
-            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-6 w-1/4" />
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2 justify-around">
+            <div className="flex gap-4">
               <Skeleton className="w-20 h-20 rounded-lg" />
               <Skeleton className="w-20 h-20 rounded-lg" />
               <Skeleton className="w-20 h-20 rounded-lg" />
@@ -150,24 +153,26 @@ export function BrandKitDisplaySkeleton() {
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-3/4" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-10 w-full mb-2" />
-            <Skeleton className="h-4 w-3/4" />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-3/4" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-10 w-full mb-2" />
-            <Skeleton className="h-4 w-3/4" />
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-10 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+            </Card>
+            <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-3/4" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-10 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
