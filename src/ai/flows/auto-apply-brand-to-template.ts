@@ -15,6 +15,7 @@ const AutoApplyBrandToTemplateInputSchema = z.object({
   colorPalette: z.array(z.string()).describe('An array of color hex codes representing the brand color palette.'),
   fontStyle: z.string().describe('The name of the font style to apply to the template.'),
   brandTone: z.string().describe('A description of the brand tone (e.g., modern, playful, minimal).'),
+  businessType: z.string().describe('The type of business (e.g., Food, Fitness).'),
 });
 export type AutoApplyBrandToTemplateInput = z.infer<typeof AutoApplyBrandToTemplateInputSchema>;
 
@@ -40,6 +41,7 @@ Template ID: {{{templateId}}}
 Color Palette: {{{colorPalette}}}
 Font Style: {{{fontStyle}}}
 Brand Tone: {{{brandTone}}}
+Business Type: {{{businessType}}}
 
 Based on the above information, return the URL of the customized template.
 `,
@@ -52,12 +54,7 @@ const autoApplyBrandToTemplateFlow = ai.defineFlow(
     outputSchema: AutoApplyBrandToTemplateOutputSchema,
   },
   async input => {
-    // Here, you would integrate with the Adobe Express APIs to apply the design system.
-    // This is a placeholder for the actual API integration.
-    // In a real implementation, you would use the templateId to fetch the template,
-    // then apply the colorPalette, fontStyle, and brandTone using the Adobe Express APIs.
-    // Finally, you would return the URL of the customized template.
-
+    // This flow is now a placeholder. The new generateBrandedAssetFlow handles the actual generation.
     // For now, we'll just return a dummy URL.
     const customizedTemplateUrl = `https://example.com/template/${input.templateId}?color=${input.colorPalette[0]}&font=${input.fontStyle}&tone=${input.brandTone}`;
 

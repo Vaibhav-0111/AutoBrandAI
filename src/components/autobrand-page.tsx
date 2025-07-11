@@ -23,15 +23,20 @@ const formSchema = z.object({
   businessType: z.string(),
 });
 
+type BrandData = {
+  brandInfo: ExtractBrandFromLogoOutput;
+  businessType: string;
+}
+
 export default function AutoBrandPage() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [brandInfo, setBrandInfo] = React.useState<ExtractBrandFromLogoOutput | null>(null);
+  const [brandData, setBrandData] = React.useState<BrandData | null>(null);
   const [socialHeaders, setSocialHeaders] = React.useState<string[] | null>(null);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
-    setBrandInfo(null);
+    setBrandData(null);
     setSocialHeaders(null);
     try {
       const brandPromise = extractBrandFromLogo({
@@ -48,7 +53,7 @@ export default function AutoBrandPage() {
         headersPromise,
       ]);
 
-      setBrandInfo(brandResult);
+      setBrandData({ brandInfo: brandResult, businessType: values.businessType });
       setSocialHeaders(headersResult.headerSuggestions);
 
       toast({
@@ -91,11 +96,11 @@ export default function AutoBrandPage() {
               <SocialMediaKitSkeleton />
               <TemplateGallerySkeleton />
             </>
-          ) : brandInfo ? (
+          ) : brandData ? (
             <>
-              <BrandKitDisplay brandInfo={brandInfo} />
+              <BrandKitDisplay brandInfo={brandData.brandInfo} />
               {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
-              <TemplateGallery brandInfo={brandInfo} />
+              <TemplateGallery brandInfo={brandData.brandInfo} />
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-[calc(100vh-10rem)] text-center bg-card rounded-xl border border-dashed">
