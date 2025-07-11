@@ -55,19 +55,18 @@ export default function AutoBrandPage() {
     if (brandData?.brandInfo.colorPalette) {
       const primaryColor = brandData.brandInfo.colorPalette[0];
       const accentColor = brandData.brandInfo.colorPalette[1] || brandData.brandInfo.colorPalette[0];
-      const backgroundColor = brandData.brandInfo.colorPalette[2] || '#F5F5F5';
       
       const primaryHsl = hexToHsl(primaryColor);
       const accentHsl = hexToHsl(accentColor);
-      const backgroundHsl = hexToHsl(backgroundColor);
 
       const style = document.createElement('style');
       style.id = 'dynamic-brand-styles';
+      // We will only theme the primary and accent colors to avoid overwhelming the UI.
+      // The background will remain neutral.
       style.innerHTML = `
         :root {
           --primary: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%;
           --accent: ${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%;
-          --background: ${backgroundHsl.h} ${backgroundHsl.s}% ${backgroundHsl.l}%;
         }
       `;
       document.head.appendChild(style);
