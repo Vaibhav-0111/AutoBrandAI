@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Palette, Type, Sparkles, Edit } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 type BrandKitDisplayProps = {
   brandInfo: ExtractBrandFromLogoOutput;
@@ -18,11 +21,6 @@ type BrandKitDisplayProps = {
 };
 
 export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayProps) {
-  const colorInputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
-
-  const handleColorBoxClick = (index: number) => {
-    colorInputRefs.current[index]?.click();
-  }
 
   return (
     <div>
@@ -39,28 +37,28 @@ export function BrandKitDisplay({ brandInfo, onColorChange }: BrandKitDisplayPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
+            <div className="flex gap-2 justify-around">
               {brandInfo.colorPalette.map((color, index) => (
-                <div
-                  key={index}
-                  className="relative w-full h-16 rounded-md flex items-end justify-end p-2 border cursor-pointer group"
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleColorBoxClick(index)}
-                >
-                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Edit className="w-5 h-5 text-white"/>
-                  </div>
-                  <span className="text-xs font-mono mix-blend-difference text-white">
-                    {color}
-                  </span>
-                  <input 
-                    type="color"
-                    ref={(el) => colorInputRefs.current[index] = el}
-                    value={color}
-                    onChange={(e) => onColorChange(index, e.target.value)}
-                    className="absolute w-0 h-0 opacity-0"
-                  />
-                </div>
+                <Popover key={index}>
+                  <PopoverTrigger asChild>
+                    <button
+                      aria-label={`Change color ${color}`}
+                      className="relative w-20 h-20 rounded-lg flex items-end justify-end p-2 border cursor-pointer group transition-transform hover:scale-105"
+                      style={{ backgroundColor: color }}
+                    >
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                        <Edit className="w-6 h-6 text-white"/>
+                      </div>
+                      <input 
+                        type="color"
+                        value={color}
+                        onChange={(e) => onColorChange(index, e.target.value)}
+                        className="absolute w-full h-full opacity-0 cursor-pointer"
+                        aria-label={`Change color for ${color}`}
+                      />
+                    </button>
+                  </PopoverTrigger>
+                </Popover>
               ))}
             </div>
           </CardContent>
@@ -108,11 +106,11 @@ export function BrandKitDisplaySkeleton() {
             <Skeleton className="h-6 w-3/4" />
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
-              <Skeleton className="w-full h-16" />
-              <Skeleton className="w-full h-16" />
-              <Skeleton className="w-full h-16" />
-              <Skeleton className="w-full h-16" />
+            <div className="flex gap-2 justify-around">
+              <Skeleton className="w-20 h-20 rounded-lg" />
+              <Skeleton className="w-20 h-20 rounded-lg" />
+              <Skeleton className="w-20 h-20 rounded-lg" />
+              <Skeleton className="w-20 h-20 rounded-lg" />
             </div>
           </CardContent>
         </Card>
