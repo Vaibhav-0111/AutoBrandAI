@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import Handlebars from 'handlebars';
 
 const GenerateBrandedAssetInputSchema = z.object({
   assetType: z.string().describe('The type of asset to generate (e.g., Business Card, Instagram Post).'),
@@ -49,7 +50,7 @@ You are a professional and creative graphic designer creating a stunningly beaut
 
 **Asset Type:** {{{assetType}}}
 **Business Type:** {{{businessType}}}
-**Color Palette:** {{#each colorPalette}}{{{this}}}{{/each}}
+**Color Palette:** {{#each colorPalette}}{{{this}}} {{/each}}
 **Font Style:** {{{fontStyle}}}
 **Brand Tone:** {{{brandTone}}}
 **Relevant Emojis:** {{{emojis}}}
@@ -77,13 +78,12 @@ const generateBrandedAssetFlow = ai.defineFlow(
   },
   async (input) => {
     const emojis = emojiMap[input.businessType] || emojiMap['Other'];
+    const template = Handlebars.compile(promptTemplate);
+    const finalPrompt = template({...input, emojis});
     
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: {
-        template: promptTemplate,
-        context: {...input, emojis},
-      },
+      prompt: finalPrompt,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
