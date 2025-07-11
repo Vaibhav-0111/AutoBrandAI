@@ -29,17 +29,37 @@ export async function generateBrandedAsset(input: GenerateBrandedAssetInput): Pr
   return generateBrandedAssetFlow(input);
 }
 
+const emojiMap: Record<string, string> = {
+    Food: '🍔🍕🍰',
+    Fitness: '💪🏋️‍♀️🧘‍♂️',
+    Tech: '💻📱🚀',
+    Fashion: '👗👠👜',
+    Retail: '🛍️🛒🎁',
+    'Real Estate': '🏠🔑🏗️',
+    Consulting: '📈🤝📊',
+    Creative: '🎨🎬🎤',
+    Other: '✨🌟💡',
+  };
+
 const promptTemplate = `
-You are a professional designer creating a branded asset.
+You are a professional and creative graphic designer creating a stunningly beautiful branded asset.
 
 **Asset Type:** {{{assetType}}}
 **Business Type:** {{{businessType}}}
 **Color Palette:** {{#each colorPalette}}{{{this}}}{{/each}}
 **Font Style:** {{{fontStyle}}}
 **Brand Tone:** {{{brandTone}}}
+**Relevant Emojis:** {{{emojis}}}
 
-Based on the provided brand guidelines, create a visually appealing and professional {{{assetType}}} design. The design should be clean, modern, and suitable for the specified business type.
-Ensure the text is legible and the color palette is used effectively. For a business card, include placeholder text for a name, title, phone number, and email.
+Instructions:
+1.  Create a visually appealing and professional {{{assetType}}} design based on the provided brand guidelines.
+2.  The design must be clean, modern, and perfectly suited for the specified business type.
+3.  Use the color palette effectively and creatively. The primary color should be prominent.
+4.  Incorporate the provided emojis subtly and artistically into the design. They should enhance the theme, not look like a text message.
+5.  Ensure all text is legible and stylish, using a font that matches the specified font style.
+6.  For a business card, include placeholder text for a name, title, phone number, and email in a creative layout.
+7.  For social media posts, use engaging imagery and layouts.
+8.  The final output should be a high-quality, eye-catching image.
 `;
 
 const generateBrandedAssetFlow = ai.defineFlow(
@@ -49,10 +69,12 @@ const generateBrandedAssetFlow = ai.defineFlow(
     outputSchema: GenerateBrandedAssetOutputSchema,
   },
   async (input) => {
+    const emojis = emojiMap[input.businessType] || emojiMap['Other'];
+    
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: promptTemplate,
-      context: input,
+      context: {...input, emojis},
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
