@@ -263,7 +263,7 @@ export default function AutoBrandPage() {
           <Logo className="w-24 h-24 text-muted-foreground/50"/>
           <h2 className="mt-6 text-2xl font-headline font-semibold">Welcome to AutoBrand AI</h2>
           <p className="mt-2 max-w-md text-muted-foreground">
-              Get started by uploading your logo and selecting your business type in the sidebar. We&apos;ll instantly generate a complete brand kit for you.
+              Get started by uploading or generating your logo in the sidebar. We&apos;ll instantly create a complete brand kit for you.
           </p>
       </div>
     );
