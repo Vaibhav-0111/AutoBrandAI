@@ -55,7 +55,7 @@ const generateMockupFlow = ai.defineFlow(
     outputSchema: GenerateMockupOutputSchema,
   },
   async (input) => {
-    const promptTemplate = promptTemplates[input.assetType] || promptTemplates['Default'];
+    const promptTemplate = (promptTemplates[input.assetType] || promptTemplates['Default']).replace('{{{businessType}}}', input.businessType);
 
     const prompt = [
         {text: promptTemplate},
@@ -65,7 +65,6 @@ const generateMockupFlow = ai.defineFlow(
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt,
-      context: input,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
