@@ -15,6 +15,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { MockupDisplay } from "./mockup-display";
+import { cn } from "@/lib/utils";
 
 type TemplatePreviewProps = {
   template: Template;
@@ -29,7 +30,9 @@ export function TemplatePreview({
 }: TemplatePreviewProps) {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [generatedAsset, setGeneratedAsset] = React.useState<string | null>(null);
+  const [generatedAssets, setGeneratedAssets] = React.useState<string[] | null>(null);
+  const [selectedAsset, setSelectedAsset] = React.useState<string | null>(null);
+
   const [brandName, setBrandName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [email, setEmail] = React.useState("");
@@ -38,7 +41,8 @@ export function TemplatePreview({
 
   const handleGenerateAsset = async () => {
     setIsGenerating(true);
-    setGeneratedAsset(null);
+    setGeneratedAssets(null);
+    setSelectedAsset(null);
     try {
       const result = await generateBrandedAsset({
         assetType: template.assetType,
@@ -51,10 +55,11 @@ export function TemplatePreview({
         email,
         address,
       });
-      setGeneratedAsset(result.assetDataUri);
+      setGeneratedAssets(result.assetDataUris);
+      setSelectedAsset(result.assetDataUris[0]);
       toast({
-        title: "Asset Generated!",
-        description: `Your ${template.name} has been created.`,
+        title: "Assets Generated!",
+        description: `Your ${template.name} designs have been created.`,
       });
     } catch (error) {
       console.error("Error generating asset:", error);
@@ -69,9 +74,9 @@ export function TemplatePreview({
   };
 
   const handleDownload = () => {
-    if (!generatedAsset) return;
+    if (!selectedAsset) return;
     const link = document.createElement("a");
-    link.href = generatedAsset;
+    link.href = selectedAsset;
     link.download = `${template.name.replace(/\s+/g, '-')}-branded.png`;
     document.body.appendChild(link);
     link.click();
@@ -94,7 +99,7 @@ export function TemplatePreview({
                                 </div>
                             ) : (
                                 <Image
-                                    src={generatedAsset || `https://placehold.co/${template.width}x${template.height}.png`}
+                                    src={selectedAsset || `https://placehold.co/${template.width}x${template.height}.png`}
                                     alt={template.name}
                                     width={template.width}
                                     height={template.height}
@@ -105,6 +110,24 @@ export function TemplatePreview({
                         </div>
                     </CardContent>
                 </Card>
+                {generatedAssets && !isGenerating && (
+                  <div className="mt-4">
+                    <h4 className="font-semibold mb-2 text-sm text-muted-foreground">Variations</h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {generatedAssets.map((asset, index) => (
+                        <button key={index} onClick={() => setSelectedAsset(asset)} className={cn("rounded-md overflow-hidden border-2", selectedAsset === asset ? "border-primary" : "border-transparent")}>
+                           <Image
+                              src={asset}
+                              alt={`Variation ${index + 1}`}
+                              width={150}
+                              height={150}
+                              className="w-full h-auto object-cover"
+                           />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
             <div className="flex flex-col gap-6">
                 <div>
@@ -142,22 +165,22 @@ export function TemplatePreview({
                         ) : (
                             <Wand2 className="mr-2 h-4 w-4" />
                         )}
-                        {generatedAsset ? "Regenerate Asset" : "Generate Asset"}
+                        {generatedAssets ? "Regenerate Assets" : "Generate Assets"}
                     </Button>
                     
-                    {generatedAsset && !isGenerating && (
+                    {selectedAsset && !isGenerating && (
                         <Button onClick={handleDownload} variant="outline" size="lg" className="w-full">
                             <Download className="mr-2 h-4 w-4" />
-                            Download Asset
+                            Download Selected Asset
                         </Button>
                     )}
                 </div>
 
-                {generatedAsset && !isGenerating && (
+                {selectedAsset && !isGenerating && (
                     <>
                         <Separator />
                         <MockupDisplay 
-                            assetDataUri={generatedAsset}
+                            assetDataUri={selectedAsset}
                             assetType={template.assetType}
                             businessType={businessType}
                         />

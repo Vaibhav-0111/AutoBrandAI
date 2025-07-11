@@ -26,7 +26,7 @@ const GenerateBrandedAssetInputSchema = z.object({
 export type GenerateBrandedAssetInput = z.infer<typeof GenerateBrandedAssetInputSchema>;
 
 const GenerateBrandedAssetOutputSchema = z.object({
-  assetDataUri: z.string().describe('The generated asset as a data URI.'),
+  assetDataUris: z.array(z.string()).describe('The generated assets as an array of data URIs.'),
 });
 export type GenerateBrandedAssetOutput = z.infer<typeof GenerateBrandedAssetOutputSchema>;
 
@@ -70,6 +70,7 @@ Instructions:
 6.  For a business card, include the brand name, phone, email, and address in a creative and professional layout. Use placeholder text ONLY if these details are not provided.
 7.  For social media posts, use engaging imagery and layouts. If a brand name is provided, incorporate it naturally.
 8.  The final output should be a high-quality, eye-catching image.
+9.  **IMPORTANT**: Each time you run this prompt, create a significantly different layout and design. Do not produce similar images on subsequent runs.
 `;
 
 const generateBrandedAssetFlow = ai.defineFlow(
@@ -82,19 +83,26 @@ const generateBrandedAssetFlow = ai.defineFlow(
     const emojis = emojiMap[input.businessType] || emojiMap['Other'];
     const template = Handlebars.compile(promptTemplate);
     const finalPrompt = template({...input, emojis});
+
+    const generationPromises = Array(3).fill(null).map(() => 
+        ai.generate({
+            model: 'googleai/gemini-2.0-flash-preview-image-generation',
+            prompt: finalPrompt,
+            config: {
+                responseModalities: ['TEXT', 'IMAGE'],
+            },
+        })
+    );
     
-    const {media} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: finalPrompt,
-      config: {
-        responseModalities: ['TEXT', 'IMAGE'],
-      },
+    const results = await Promise.all(generationPromises);
+
+    const assetDataUris = results.map(result => {
+        if (!result.media.url) {
+            throw new Error('Image generation failed to return a data URI for one of the assets.');
+        }
+        return result.media.url;
     });
 
-    if (!media.url) {
-        throw new Error('Image generation failed to return a data URI.');
-    }
-
-    return { assetDataUri: media.url };
+    return { assetDataUris };
   }
 );
