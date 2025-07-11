@@ -33,6 +33,7 @@ export function TemplatePreview({
   const [brandName, setBrandName] = React.useState("");
   const [phone, setPhone] = React.useState("");
   const [email, setEmail] = React.useState("");
+  const [address, setAddress] = React.useState("");
 
 
   const handleGenerateAsset = async () => {
@@ -48,6 +49,7 @@ export function TemplatePreview({
         brandName,
         phone,
         email,
+        address,
       });
       setGeneratedAsset(result.assetDataUri);
       toast({
@@ -120,6 +122,10 @@ export function TemplatePreview({
                      <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g., contact@sparkleclean.com" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="address">Address</Label>
+                        <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g., 123 Main St, Anytown, USA" />
                     </div>
                   </div>
                 </div>
