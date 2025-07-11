@@ -22,7 +22,8 @@ import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
 
 const formSchema = z.object({
-  logo: z.string(),
+  logo: z.string().optional(),
+  logoDescription: z.string().optional(),
   businessType: z.string(),
 });
 
@@ -46,12 +47,23 @@ export default function AutoBrandPage() {
   const [brandData, setBrandData] = React.useState<BrandData | null>(null);
   const [socialPosts, setSocialPosts] = React.useState<string[] | null>(null);
   const [selectedTemplate, setSelectedTemplate] = React.useState<Template | null>(null);
+  const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!values.logo) {
+      toast({
+        variant: "destructive",
+        title: "No Logo Provided",
+        description: "Please upload or generate a logo before continuing.",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     setBrandData(null);
     setSocialPosts(null);
     setSelectedTemplate(null);
+
     try {
       const brandResult = await extractBrandFromLogo({
         logoDataUri: values.logo,
@@ -190,7 +202,12 @@ export default function AutoBrandPage() {
           </p>
         </SidebarHeader>
         <SidebarContent className="p-4">
-          <AutoBrandForm onSubmit={onSubmit} isGenerating={isGenerating} />
+          <AutoBrandForm 
+            onSubmit={onSubmit} 
+            isGenerating={isGenerating} 
+            logoPreview={logoPreview}
+            setLogoPreview={setLogoPreview}
+          />
         </SidebarContent>
       </Sidebar>
       <SidebarInset>
