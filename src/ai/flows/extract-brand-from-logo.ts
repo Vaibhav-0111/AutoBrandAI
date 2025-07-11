@@ -1,3 +1,4 @@
+
 // The `use server` directive is necessary to inform the Next.js runtime that this code should only be executed on the server.
 'use server';
 /**
@@ -22,7 +23,7 @@ const ExtractBrandFromLogoInputSchema = z.object({
 export type ExtractBrandFromLogoInput = z.infer<typeof ExtractBrandFromLogoInputSchema>;
 
 const ExtractBrandFromLogoOutputSchema = z.object({
-  colorPalette: z.array(z.string()).describe('The color palette extracted from the logo.'),
+  colorPalette: z.array(z.string().regex(/^#[0-9a-fA-F]{6}$/, "Color must be a valid hex code.")).describe('The color palette extracted from the logo as an array of hex codes.'),
   fontStyle: z.string().describe('The font style that best matches the brand.'),
   brandTone: z.string().describe('The overall brand tone (e.g., modern, playful, minimal).'),
 });
@@ -36,14 +37,17 @@ const prompt = ai.definePrompt({
   name: 'extractBrandFromLogoPrompt',
   input: {schema: ExtractBrandFromLogoInputSchema},
   output: {schema: ExtractBrandFromLogoOutputSchema},
-  prompt: `You are an expert branding consultant. Extract the brand's color palette, font style, and overall tone from the provided logo image and business type.
+  prompt: `You are an expert branding consultant and designer. Your task is to extract a visually appealing and cohesive brand identity from the provided logo image and business type.
 
   Logo: {{media url=logoDataUri}}
   Business Type: {{{businessType}}}
 
-  Output the color palette as an array of hex codes. Choose a font style from the following options: sans-serif, serif, display, handwriting, monospace. Choose a brand tone from the following options: modern, playful, minimal, elegant, corporate.
+  **Instructions:**
+  1.  **Color Palette:** Extract a palette of 5-10 colors from the logo. The first color should be the most dominant and suitable as a primary brand color. The colors should be aesthetically pleasing and work well together. Output each color as a valid 6-digit hex code (e.g., "#RRGGBB").
+  2.  **Font Style:** Based on the logo's design and the business type, choose a single, most appropriate font style from the following options: \`sans-serif\`, \`serif\`, \`display\`, \`handwriting\`, \`monospace\`.
+  3.  **Brand Tone:** Based on the logo and business type, determine the most fitting brand tone from the following options: \`modern\`, \`playful\`, \`minimal\`, \`elegant\`, \`corporate\`.
 
-  Ensure that the output matches the specified output schema.`, 
+  Ensure that the final output strictly adheres to the specified JSON output schema, including the correct data types and constraints.`, 
 });
 
 const extractBrandFromLogoFlow = ai.defineFlow(

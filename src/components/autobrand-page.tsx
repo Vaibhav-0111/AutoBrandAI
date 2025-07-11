@@ -73,6 +73,12 @@ export default function AutoBrandPage() {
         :root {
           --primary: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%;
           --accent: ${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%;
+          --ring: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%;
+        }
+        .dark {
+            --primary: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l + 10}%;
+            --accent: ${accentHsl.h} ${accentHsl.s}% ${accentHsl.l + 10}%;
+            --ring: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l + 10}%;
         }
       `;
       // Clean up previous style tag
@@ -81,15 +87,8 @@ export default function AutoBrandPage() {
         document.head.removeChild(existingStyle);
       }
       document.head.appendChild(style);
-
-      return () => {
-        const styleElement = document.getElementById('dynamic-brand-styles');
-        if (styleElement) {
-          document.head.removeChild(styleElement);
-        }
-      };
     }
-  }, [brandData]);
+  }, [brandData?.brandInfo.colorPalette]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!values.logo) {
