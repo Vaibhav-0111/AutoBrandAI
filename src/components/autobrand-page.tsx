@@ -10,7 +10,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { extractBrandFromLogo, ExtractBrandFromLogoOutput } from "@/ai/flows/extract-brand-from-logo";
-import { generateSocialMediaHeaders } from "@/ai/flows/generate-social-media-headers";
+import { generateSocialMediaPosts } from "@/ai/flows/generate-social-media-posts";
 import { useToast } from "@/hooks/use-toast";
 import { AutoBrandForm } from "./autobrand-form";
 import { BrandKitDisplay, BrandKitDisplaySkeleton } from "./brand-kit-display";
@@ -44,31 +44,30 @@ export default function AutoBrandPage() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [brandData, setBrandData] = React.useState<BrandData | null>(null);
-  const [socialHeaders, setSocialHeaders] = React.useState<string[] | null>(null);
+  const [socialPosts, setSocialPosts] = React.useState<string[] | null>(null);
   const [selectedTemplate, setSelectedTemplate] = React.useState<Template | null>(null);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsGenerating(true);
     setBrandData(null);
-    setSocialHeaders(null);
+    setSocialPosts(null);
     setSelectedTemplate(null);
     try {
-      const brandPromise = extractBrandFromLogo({
-        logoDataUri: values.logo,
-        businessType: values.businessType,
-      });
-      const headersPromise = generateSocialMediaHeaders({
+      const brandResult = await extractBrandFromLogo({
         logoDataUri: values.logo,
         businessType: values.businessType,
       });
 
-      const [brandResult, headersResult] = await Promise.all([
-        brandPromise,
-        headersPromise,
-      ]);
+      const postsPromise = generateSocialMediaPosts({
+        logoDataUri: values.logo,
+        businessType: values.businessType,
+        brandTone: brandResult.brandTone,
+      });
 
       setBrandData({ brandInfo: brandResult, businessType: values.businessType });
-      setSocialHeaders(headersResult.headerSuggestions);
+      
+      const postsResult = await postsPromise;
+      setSocialPosts(postsResult.postSuggestions);
 
     } catch (error) {
       console.error("Error generating brand kit:", error);
@@ -158,7 +157,7 @@ export default function AutoBrandPage() {
             onFontStyleChange={handleFontStyleChange}
             onBrandToneChange={handleBrandToneChange}
           />
-          {socialHeaders && <SocialMediaKit headers={socialHeaders} />}
+          {socialPosts && <SocialMediaKit posts={socialPosts} />}
           <TemplateGallery 
             brandInfo={brandData.brandInfo} 
             onTemplateSelect={setSelectedTemplate}

@@ -3,18 +3,15 @@
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquareQuote } from "lucide-react";
 
 type SocialMediaKitProps = {
-  headers: string[];
+  posts: string[];
 };
 
-export function SocialMediaKit({ headers }: SocialMediaKitProps) {
+export function SocialMediaKit({ posts }: SocialMediaKitProps) {
   return (
     <div>
       <h2 className="text-3xl font-headline font-bold tracking-tight mb-4">
@@ -23,10 +20,10 @@ export function SocialMediaKit({ headers }: SocialMediaKitProps) {
       <Card>
         <CardContent className="pt-6">
           <ul className="space-y-4">
-            {headers.map((header, index) => (
+            {posts.map((post, index) => (
               <li key={index} className="flex items-start gap-4">
                 <MessageSquareQuote className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                <p className="text-muted-foreground">{header}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">{post}</p>
               </li>
             ))}
           </ul>
@@ -46,7 +43,10 @@ export function SocialMediaKitSkeleton() {
             {[...Array(3)].map((_, index) => (
               <li key={index} className="flex items-start gap-4">
                 <Skeleton className="w-5 h-5 rounded-full" />
-                <Skeleton className="h-5 w-full" />
+                <div className="w-full space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
               </li>
             ))}
           </ul>
