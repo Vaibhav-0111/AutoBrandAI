@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -20,6 +21,7 @@ import { Logo } from "./icons";
 import { TemplatePreview } from "./template-preview";
 import { Button } from "./ui/button";
 import { ArrowLeft } from "lucide-react";
+import { hexToHsl, hslToHex } from "@/lib/utils";
 
 const formSchema = z.object({
   logo: z.string().optional(),
@@ -48,6 +50,37 @@ export default function AutoBrandPage() {
   const [socialPosts, setSocialPosts] = React.useState<string[] | null>(null);
   const [selectedTemplate, setSelectedTemplate] = React.useState<Template | null>(null);
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (brandData?.brandInfo.colorPalette) {
+      const primaryColor = brandData.brandInfo.colorPalette[0];
+      const accentColor = brandData.brandInfo.colorPalette[1] || brandData.brandInfo.colorPalette[0];
+      const backgroundColor = brandData.brandInfo.colorPalette[2] || '#F5F5F5';
+      
+      const primaryHsl = hexToHsl(primaryColor);
+      const accentHsl = hexToHsl(accentColor);
+      const backgroundHsl = hexToHsl(backgroundColor);
+
+      const style = document.createElement('style');
+      style.id = 'dynamic-brand-styles';
+      style.innerHTML = `
+        :root {
+          --primary: ${primaryHsl.h} ${primaryHsl.s}% ${primaryHsl.l}%;
+          --accent: ${accentHsl.h} ${accentHsl.s}% ${accentHsl.l}%;
+          --background: ${backgroundHsl.h} ${backgroundHsl.s}% ${backgroundHsl.l}%;
+        }
+      `;
+      document.head.appendChild(style);
+
+      return () => {
+        const styleElement = document.getElementById('dynamic-brand-styles');
+        if (styleElement) {
+          document.head.removeChild(styleElement);
+        }
+      };
+    }
+  }, [brandData]);
+
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!values.logo) {
