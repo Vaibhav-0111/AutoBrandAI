@@ -13,6 +13,8 @@ import { type Template } from "./autobrand-page";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
+import { MockupDisplay } from "./mockup-display";
 
 type TemplatePreviewProps = {
   template: Template;
@@ -77,11 +79,11 @@ export function TemplatePreview({
   return (
     <div>
         <h2 className="text-3xl font-headline font-bold tracking-tight mb-4">{template.name} Preview</h2>
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             <div>
                 <Card className="overflow-hidden sticky top-8">
                     <CardContent className="p-0">
-                         <div className="aspect-w-1 aspect-h-1 bg-muted">
+                         <div className="aspect-w-1 aspect-h-1 bg-muted rounded-lg flex items-center justify-center">
                             {isGenerating ? (
                                 <div className="flex items-center justify-center flex-col gap-4 p-8 text-center">
                                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -95,10 +97,7 @@ export function TemplatePreview({
                                     width={template.width}
                                     height={template.height}
                                     data-ai-hint={template.hint}
-                                    className="w-full h-auto object-cover"
-                                    style={{
-                                        borderBottom: `8px solid ${brandInfo.colorPalette[0] || 'hsl(var(--primary))'}`
-                                    }}
+                                    className="w-full h-auto object-contain"
                                 />
                             )}
                         </div>
@@ -107,7 +106,7 @@ export function TemplatePreview({
             </div>
             <div className="flex flex-col gap-6">
                 <div>
-                  <h3 className="text-xl font-headline font-semibold mb-2">Add Your Details</h3>
+                  <h3 className="text-xl font-headline font-semibold mb-2">1. Add Your Details</h3>
                   <p className="text-muted-foreground mb-4">This information will be included in your generated asset.</p>
                   <div className="space-y-4">
                     <div className="space-y-2">
@@ -137,16 +136,27 @@ export function TemplatePreview({
                         ) : (
                             <Wand2 className="mr-2 h-4 w-4" />
                         )}
-                        {generatedAsset ? "Regenerate" : "Generate Asset"}
+                        {generatedAsset ? "Regenerate Asset" : "Generate Asset"}
                     </Button>
                     
                     {generatedAsset && !isGenerating && (
-                        <Button onClick={handleDownload} variant="secondary" size="lg" className="w-full">
+                        <Button onClick={handleDownload} variant="outline" size="lg" className="w-full">
                             <Download className="mr-2 h-4 w-4" />
                             Download Asset
                         </Button>
                     )}
                 </div>
+
+                {generatedAsset && !isGenerating && (
+                    <>
+                        <Separator />
+                        <MockupDisplay 
+                            assetDataUri={generatedAsset}
+                            assetType={template.assetType}
+                            businessType={businessType}
+                        />
+                    </>
+                )}
             </div>
         </div>
     </div>
