@@ -84,7 +84,7 @@ export function AutoBrandForm({
             <FormItem>
               <FormLabel>Your Logo</FormLabel>
               <FormControl>
-                <>
+                <div>
                   <Input
                     type="file"
                     className="hidden"
@@ -115,7 +115,7 @@ export function AutoBrandForm({
                       </>
                     )}
                   </Button>
-                </>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
