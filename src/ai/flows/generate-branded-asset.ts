@@ -80,8 +80,10 @@ const generateBrandedAssetFlow = ai.defineFlow(
     
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
-      prompt: promptTemplate,
-      context: {...input, emojis},
+      prompt: {
+        template: promptTemplate,
+        context: {...input, emojis},
+      },
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
       },
