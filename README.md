@@ -24,6 +24,11 @@
 | Google AI     | Powering the AI capabilities                  |
 | Shadcn UI     | Reusable UI components                        |
 
+
+## DEMO
+<img width="1905" height="1032" alt="Screenshot 2025-07-19 091708" src="https://github.com/user-attachments/assets/14b73aea-fd58-4e3d-a6ef-e0a4e2c35f0d" />
+
+
 ## 🛠️ Installation
 
 To set up Autobrand AI locally, follow these steps:
